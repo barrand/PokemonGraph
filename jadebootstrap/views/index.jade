@@ -1,0 +1,12 @@
+extends ../node_modules/jade-bootstrap/layouts/starter
+
+
+append body
+	.container
+		h1= title
+		p Welcome to #{title}
+		ul
+			for n in names
+				li= n
+			else
+				li sorry, no names!
