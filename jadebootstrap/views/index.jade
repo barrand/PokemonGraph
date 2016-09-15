@@ -3,10 +3,10 @@ extends ../node_modules/jade-bootstrap/layouts/starter
 
 append body
 	.container
-		h1 Lists by type
-		p See a list of #{type} types
+		h1 My Pokemon
 		ul
-			for n in names
-				li= n
-			else
-				li sorry, no names!
+		for m in myPokemon
+			li= m
+		else
+			#[span Looks like you do not have any saved Pokemon. Go ] #[a(href="/saved") save some here.]
+		

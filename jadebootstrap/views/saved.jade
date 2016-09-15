@@ -1,0 +1,10 @@
+extends ../node_modules/jade-bootstrap/layouts/starter
+
+block body
+	+navbar-fixed("Pokemon DB","navbar","inverse")
+		+nav_item("#") Home
+		+nav_item("#", "active") Saved Pokemon
+	.container
+		h1 My Pokemon
+		
+		
