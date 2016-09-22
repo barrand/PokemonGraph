@@ -9,6 +9,9 @@ RETURN count(n) as deletedNodesCount
 MATCH(p:Pokemon{name:'abra'})-[r]-(o)
 RETURN p,r,o
 
+MATCH(p:Pokemon{pokemon_id:5})
+CREATE (bryce:User {name:'bryce'})-[:has_pokemon]->(p)
+
 MATCH (p:Pokemon)-[:how_battle_common]->(c)
 RETURN p,c
 

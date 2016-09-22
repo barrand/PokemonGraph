@@ -1,8 +1,5 @@
 extends ../node_modules/jade-bootstrap/layouts/starter
-script.
-  var something = saveMe() {
-    alert('something')
-  }
+script(src="/Scripts/jquery.timeago.js")
 
 button(onclick='something()') Click
 block body
@@ -17,7 +14,10 @@ block body
 		for pokemon in everywherePokemon
 			img(src= pokemon.url width=30 height=30)
 			b= pokemon.name
-			button(onclick='saveMe('pokemon.name')') Save this
+			if pokemon.id in myPokemonIds
+				h1 have this guy
+			else
+				a(href= "/save/#{pokemon.pokemon_id}") go.
 			br
 		h3 Common
 		ul
