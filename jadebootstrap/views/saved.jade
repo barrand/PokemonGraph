@@ -13,8 +13,8 @@ block body
 		
 		for pokemon in everywherePokemon
 			img(src= pokemon.url width=30 height=30)
-			b= pokemon.name
-			if pokemon.id in myPokemonIds
+			b= pokemon.owned
+			if pokemon.owned == true
 				h1 have this guy
 			else
 				a(href= "/save/#{pokemon.pokemon_id}") go.

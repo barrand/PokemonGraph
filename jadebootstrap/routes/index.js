@@ -92,7 +92,7 @@ function getMyPokemon(session, res, allPokemon){
 	  .subscribe({
 	    onNext: function(record) {
 	    	var pokemonObj = record.get("p")['properties'];
-			myPokemonIds.push(pokemonObj.pokemon_id);
+			myPokemonIds.push(Number(pokemonObj.pokemon_id));
 			console.log(pokemonObj.pokemon_id);
 	    },
 	    onCompleted: function() {
@@ -115,15 +115,20 @@ function renderSaved(allPokemon, myPokemonIds, res){
 
 	for (list in allPokemon){
 		for(p in allPokemon[list]){
-			for (myId in myPokemonIds){
-				console.log(typeof(myPokemonIds[myId]) + " " + typeof(allPokemon[list][p].pokemon_id));
-				if(myPokemonIds[myId] == allPokemon[list][p].pokemon_id){
-					p.owned = true;
-					console.log("owned!!")
-				}else{
-					p.owned = false;
-				}
+			var currentId = Number(allPokemon[list][p].pokemon_id);
+			if(myPokemonIds.indexOf(currentId) > -1){
+				console.log("MATCH " + currentId);
+				p.owned = "true";
+			}else{
+				p.owned = "false";
 			}
+			// console.log(typeof(myPokemonIds[myId]) + " " + typeof(allPokemon[list][p].pokemon_id));
+			// if(myPokemonIds[myId] == allPokemon[list][p].pokemon_id){
+			// 	p.owned = true;
+			// 	console.log("owned!!")
+			// }else{
+			// 	p.owned = false;
+			// }
 			
 		}
 	}
