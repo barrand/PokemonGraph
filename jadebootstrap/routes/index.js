@@ -109,13 +109,22 @@ function getMyPokemon(session, res, allPokemon){
 
 function renderSaved(allPokemon, myPokemonIds, res){
 	
-	for (p in allPokemon){
-		console.log("index " + myPokemonIds.indexOf(p.pokemon_id))
-		if(myPokemonIds.indexOf(p.pokemon_id) >= 0 ){
-			p.owned = true;
-			console.log("owned!!")
-		}else{
-			p.owned = false;
+	for (blah in myPokemonIds){
+		console.log(blah + ":-- " + myPokemonIds[blah]);
+	}
+
+	for (list in allPokemon){
+		for(p in allPokemon[list]){
+			for (myId in myPokemonIds){
+				console.log(typeof(myPokemonIds[myId]) + " " + typeof(allPokemon[list][p].pokemon_id));
+				if(myPokemonIds[myId] == allPokemon[list][p].pokemon_id){
+					p.owned = true;
+					console.log("owned!!")
+				}else{
+					p.owned = false;
+				}
+			}
+			
 		}
 	}
 	res.render('saved', {rarePokemon: allPokemon['rare'], occasionalPokemon: allPokemon['occasional'], commonPokemon: allPokemon['common'], everywherePokemon: allPokemon['everywhere'], myPokemonIds: myPokemonIds});
