@@ -13,11 +13,11 @@ block body
 		
 		for pokemon in everywherePokemon
 			img(src= pokemon.url width=30 height=30)
-			b= pokemon.owned
-			if pokemon.owned == true
-				h1 have this guy
+			if pokemon.owned == 'true'
+				a(href= "/remove/#{pokemon.pokemon_id}") remove 
 			else
-				a(href= "/save/#{pokemon.pokemon_id}") go.
+				a(href= "/save/#{pokemon.pokemon_id}") add 
+			b= pokemon.name
 			br
 		h3 Common
 		ul

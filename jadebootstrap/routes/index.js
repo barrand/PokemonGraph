@@ -60,6 +60,30 @@ router.get('/save/:id', function(req, res, next) {
 	  });
 });
 
+router.get('/remove/:id', function(req, res, next) {
+  	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
+	var session = driver.session();
+	var id = req.params.id;
+	console.log("remove " + id);
+  	session
+	  .run( "MATCH(p:Pokemon{pokemon_id:80}) MATCH (u:User {name:'Billy'})-[r:has_pokemon]->(p) DELETE r" )
+	  .subscribe({
+	    onNext: function(record) {
+	    	
+	    },
+	    onCompleted: function() {
+	      console.log("just removed " + id);
+	      session.close();
+	      res.redirect("/saved");
+	      //go to the saved page
+	    },
+	    onError: function(error) {
+	      console.log(error);
+	      session.close();
+	    }
+	  });
+});
+
 function getAllPokemon(session, res){
 	var allPokemon = {};
 	allPokemon['rare'] = [];
@@ -118,9 +142,9 @@ function renderSaved(allPokemon, myPokemonIds, res){
 			var currentId = Number(allPokemon[list][p].pokemon_id);
 			if(myPokemonIds.indexOf(currentId) > -1){
 				console.log("MATCH " + currentId);
-				p.owned = "true";
+				allPokemon[list][p].owned = "true";
 			}else{
-				p.owned = "false";
+				allPokemon[list][p].owned = "false";
 			}
 			// console.log(typeof(myPokemonIds[myId]) + " " + typeof(allPokemon[list][p].pokemon_id));
 			// if(myPokemonIds[myId] == allPokemon[list][p].pokemon_id){
