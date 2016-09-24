@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var neo4j = require('neo4j-driver').v1;
+var userId = "homeboy";
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -42,7 +43,7 @@ router.get('/save/:id', function(req, res, next) {
 	var session = driver.session();
 	var id = req.params.id;
   	session
-	  .run( "MATCH(p:Pokemon{pokemon_id:"+id+"}) CREATE (billy:User {name:'Billy'})-[:has_pokemon]->(p)" )
+	  .run( "MATCH(p:Pokemon{pokemon_id:"+id+"}) CREATE (user:User {user_id:'"+userId+"'})-[:has_pokemon]->(p)" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	
@@ -66,7 +67,7 @@ router.get('/remove/:id', function(req, res, next) {
 	var id = req.params.id;
 	console.log("remove " + id);
   	session
-	  .run( "MATCH(p:Pokemon{pokemon_id:80}) MATCH (u:User {name:'Billy'})-[r:has_pokemon]->(p) DELETE r" )
+	  .run( "MATCH(p:Pokemon{pokemon_id:"+id+"}) MATCH (u:User {user_id:'"+userId+"'})-[r:has_pokemon]->(p) DELETE r" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	
@@ -99,7 +100,6 @@ function getAllPokemon(session, res){
 			allPokemon[howCommon].push(pokemonObj);
 	    },
 	    onCompleted: function() {
-	      console.log("allPokemon " + allPokemon);
 	      getMyPokemon(session,res, allPokemon);
 	      // renderSaved(toReturn, res);
 	    },
@@ -111,17 +111,17 @@ function getAllPokemon(session, res){
 }
 function getMyPokemon(session, res, allPokemon){
 	var myPokemonIds = [];
+	var myPokemon = [];
 	session
-	  .run( "MATCH (u:User {name:'Billy'}) MATCH (p:Pokemon)<-[:has_pokemon]-(u) RETURN p" )
+	  .run( "MATCH (u:User {user_id:'"+userId+"'}) MATCH (p:Pokemon)<-[:has_pokemon]-(u) RETURN p" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	var pokemonObj = record.get("p")['properties'];
 			myPokemonIds.push(Number(pokemonObj.pokemon_id));
-			console.log(pokemonObj.pokemon_id);
+			myPokemon.push(pokemonObj);
 	    },
 	    onCompleted: function() {
-	      console.log("to return " + myPokemonIds);
-	      renderSaved(allPokemon, myPokemonIds, res);
+	      renderSaved(allPokemon, myPokemonIds, myPokemon, res);
 	      // renderSaved(toReturn, res);
 	    },
 	    onError: function(error) {
@@ -131,17 +131,11 @@ function getMyPokemon(session, res, allPokemon){
 	  });
 }
 
-function renderSaved(allPokemon, myPokemonIds, res){
-	
-	for (blah in myPokemonIds){
-		console.log(blah + ":-- " + myPokemonIds[blah]);
-	}
-
+function renderSaved(allPokemon, myPokemonIds, myPokemon, res){
 	for (list in allPokemon){
 		for(p in allPokemon[list]){
 			var currentId = Number(allPokemon[list][p].pokemon_id);
 			if(myPokemonIds.indexOf(currentId) > -1){
-				console.log("MATCH " + currentId);
 				allPokemon[list][p].owned = "true";
 			}else{
 				allPokemon[list][p].owned = "false";
@@ -156,7 +150,7 @@ function renderSaved(allPokemon, myPokemonIds, res){
 			
 		}
 	}
-	res.render('saved', {rarePokemon: allPokemon['rare'], occasionalPokemon: allPokemon['occasional'], commonPokemon: allPokemon['common'], everywherePokemon: allPokemon['everywhere'], myPokemonIds: myPokemonIds});
+	res.render('saved', {rarePokemon: allPokemon['rare'], occasionalPokemon: allPokemon['occasional'], commonPokemon: allPokemon['common'], everywherePokemon: allPokemon['everywhere'], myPokemonIds: myPokemonIds, myPokemon: myPokemon});
 }
 
 module.exports = router;
