@@ -14,7 +14,16 @@ block body
 				.panel-body
 					for pokemon in myPokemon
 						img(src= pokemon.url width=30 height=30)
-						a(href= "/remove/#{pokemon.pokemon_id}") remove 
+						a(href= "/removeMine/#{pokemon.pokemon_id}") remove 
+						b= pokemon.name
+						br
+			.col-md-6.col-sm-6.col-xs-12
+				.panel.panel-warning
+				.panel-heading Opposing Pokemon
+				.panel-body
+					for pokemon in opposingPokemon
+						img(src= pokemon.url width=30 height=30)
+						a(href= "/removeOpposing/#{pokemon.pokemon_id}") remove 
 						b= pokemon.name
 						br
 			.col-md-6.col-sm-6.col-xs-12
@@ -25,19 +34,20 @@ block body
 					for pokemon in everywherePokemon
 						img(src= pokemon.url width=30 height=30)
 						if pokemon.owned == 'true'
-							a(href= "/remove/#{pokemon.pokemon_id}") remove 
+							a(href= "/removeMine/#{pokemon.pokemon_id}") remove 
 						else
-							a(href= "/save/#{pokemon.pokemon_id}") add 
+							a(href= "/saveMine/#{pokemon.pokemon_id}") add 
 						b= pokemon.name
+						a(href= "/saveOpposing/#{pokemon.pokemon_id}") Save Opposing!! 
 						br
 					h3 Common
 					ul
 					for pokemon in commonPokemon
 						img(src= pokemon.url width=30 height=30)
 						if pokemon.owned == 'true'
-							a(href= "/remove/#{pokemon.pokemon_id}") remove 
+							a(href= "/removeMine/#{pokemon.pokemon_id}") remove 
 						else
-							a(href= "/save/#{pokemon.pokemon_id}") add 
+							a(href= "/saveMine/#{pokemon.pokemon_id}") add 
 						b= pokemon.name
 						br
 					h3 Ocassional
@@ -45,9 +55,9 @@ block body
 					for pokemon in occasionalPokemon
 						img(src= pokemon.url width=30 height=30)
 						if pokemon.owned == 'true'
-							a(href= "/remove/#{pokemon.pokemon_id}") remove 
+							a(href= "/removeMine/#{pokemon.pokemon_id}") remove 
 						else
-							a(href= "/save/#{pokemon.pokemon_id}") add 
+							a(href= "/saveMine/#{pokemon.pokemon_id}") add 
 						b= pokemon.name
 						br
 					h3 Rare
@@ -55,9 +65,9 @@ block body
 					for pokemon in rarePokemon
 						img(src= pokemon.url width=30 height=30)
 						if pokemon.owned == 'true'
-							a(href= "/remove/#{pokemon.pokemon_id}") remove 
+							a(href= "/removeMine/#{pokemon.pokemon_id}") remove 
 						else
-							a(href= "/save/#{pokemon.pokemon_id}") add 
+							a(href= "/saveMine/#{pokemon.pokemon_id}") add 
 						b= pokemon.name
 						br
 		.row

@@ -1,3 +1,4 @@
+CREATE (u:User {user_id:1, name:'homeboy'})
 CREATE (bulbasaur:Pokemon {pokemon_id:1, name:'Bulbasaur', url:'http://static6.techinsider.io/image/5790e8b84321f122008b9d5b-1200/1-bulbasaur--note-weve-included-the-descriptions-for-each-pokmon-from-a-hrefhttpwwwpokemoncomuspokedexthe-official-pokdexa-enjoy.jpg'})
 CREATE (ivysaur:Pokemon {pokemon_id:2, name:'Ivysaur', url:'http://static5.techinsider.io/image/5790e8b84321f172088b9cb2-1200/2-ivysaur.jpg'})
 CREATE (venusaur:Pokemon {pokemon_id:3, name:'Venusaur', url:'http://static1.techinsider.io/image/5790e8b84321f1c62f8b9414-1200/3-venusaur.jpg'})
