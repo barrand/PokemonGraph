@@ -2,40 +2,29 @@ var express = require('express');
 var router = express.Router();
 var neo4j = require('neo4j-driver').v1;
 var userId = 1;
-
+var DESTINATION_SAVED = "saved";
+var DESTINATION_INDEX = "index";
 /* GET home page. */
 router.get('/', function(req, res, next) {
 	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
- 	var myPokemon = [];
-	res.render('index', { title: 'blah', names: [], type: 'water', myPokemon:myPokemon });
-
-	// var names = [];
- //  	var type = 'water'
- //  	var myPokemon = [];
-	// session
-	//   .run( "MATCH (Type1 { name:'"+type+"' })<-[:type1|type2]-(pokemon) RETURN pokemon.name" )
-	//   .subscribe({
-	//     onNext: function(record) {
-	//       names.push(record.get("pokemon.name"));
-	//       //console.log(record.get("pokemon.name"));
-	//     },
-	//     onCompleted: function() {
-	//       neo4j.session.close();
-	//       res.render('index', { title: 'JADE-Bootstrap', names: names, type: type, myPokemon:myPokemon });
-	//     },
-	//     onError: function(error) {
-	//       console.log(error);
-	//     }
-	//   });
+	var allPokemon = {};
+	req.destination = DESTINATION_INDEX;
+	console.log('index ' + req.destination);
+ 	getMyPokemon(session, req, res, allPokemon);
+	//res.render('index', { title: 'blah', names: [], type: 'water', myPokemon:myPokemon });
 });
+
+
+//=================== Saved =================
 
 router.get('/saved/', function(req, res, next) {
   	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
 
   	var names = [];
-  	getAllPokemon(session, res);
+  	req.destination = DESTINATION_SAVED;
+  	getAllPokemon(session, req, res);
 });
 
 router.get('/saveMine/:id', function(req, res, next) {
@@ -102,7 +91,7 @@ function removePokemon(relationship, pokemon_id, res){
 }
 
 
-function getAllPokemon(session, res){
+function getAllPokemon(session, req, res){
 	var allPokemon = {};
 	allPokemon['rare'] = [];
 	allPokemon['occasional'] = [];
@@ -117,7 +106,7 @@ function getAllPokemon(session, res){
 			allPokemon[howCommon].push(pokemonObj);
 	    },
 	    onCompleted: function() {
-	      getMyPokemon(session,res, allPokemon);
+	      getMyPokemon(session, req, res, allPokemon);
 	      // renderSaved(toReturn, res);
 	    },
 	    onError: function(error) {
@@ -126,7 +115,7 @@ function getAllPokemon(session, res){
 	    }
 	  });
 }
-function getMyPokemon(session, res, allPokemon){
+function getMyPokemon(session, req, res, allPokemon){
 	var myPokemonIds = [];
 	var myPokemon = [];
 	var opposingPokemon = [];
@@ -139,7 +128,7 @@ function getMyPokemon(session, res, allPokemon){
 			myPokemon.push(pokemonObj);
 	    },
 	    onCompleted: function() {
-	      getOpposingPokemon(session, res, allPokemon, myPokemonIds, myPokemon);
+	      getOpposingPokemon(session, req, res, allPokemon, myPokemonIds, myPokemon);
 	    },
 	    onError: function(error) {
 	      console.log(error);
@@ -148,7 +137,7 @@ function getMyPokemon(session, res, allPokemon){
 	  });
 }
 
-function getOpposingPokemon(session, res, allPokemon, myPokemonIds, myPokemon){
+function getOpposingPokemon(session, req, res, allPokemon, myPokemonIds, myPokemon){
 	var opposingPokemonIds = [];
 	var opposingPokemon = [];
 	session
@@ -161,8 +150,12 @@ function getOpposingPokemon(session, res, allPokemon, myPokemonIds, myPokemon){
 			console.log('getting opposing ')
 	    },
 	    onCompleted: function() {
-	      renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, res);
-	      // renderSaved(toReturn, res);
+	      console.log('ready to render ' + req.destination);
+	      if(req.destination == DESTINATION_SAVED){
+	      	renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res);
+	      }else if (req.destination == DESTINATION_INDEX){
+	      	res.render('index', { title: 'blah', names: [], type: 'water', myPokemon:myPokemon });
+	      }
 	    },
 	    onError: function(error) {
 	      console.log(error);
@@ -171,7 +164,7 @@ function getOpposingPokemon(session, res, allPokemon, myPokemonIds, myPokemon){
 	  });
 }
 
-function renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, res){
+function renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res){
 	for (list in allPokemon){
 		for(p in allPokemon[list]){
 			var currentId = Number(allPokemon[list][p].pokemon_id);
@@ -179,6 +172,11 @@ function renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, op
 				allPokemon[list][p].owned = "true";
 			}else{
 				allPokemon[list][p].owned = "false";
+			}
+			if(opposingPokemonIds.indexOf(currentId) > -1){
+				allPokemon[list][p].opposing = "true";
+			}else{
+				allPokemon[list][p].opposing = "false";
 			}			
 		}
 	}
