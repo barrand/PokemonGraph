@@ -154,7 +154,7 @@ function getOpposingPokemon(session, req, res, allPokemon, myPokemonIds, myPokem
 	      if(req.destination == DESTINATION_SAVED){
 	      	renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res);
 	      }else if (req.destination == DESTINATION_INDEX){
-	      	res.render('index', { title: 'blah', names: [], type: 'water', myPokemon:myPokemon });
+			renderIndex(myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res);
 	      }
 	    },
 	    onError: function(error) {
@@ -181,6 +181,41 @@ function renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, op
 		}
 	}
 	res.render('saved', {rarePokemon: allPokemon['rare'], occasionalPokemon: allPokemon['occasional'], commonPokemon: allPokemon['common'], everywherePokemon: allPokemon['everywhere'], myPokemonIds: myPokemonIds, myPokemon: myPokemon, opposingPokemon:opposingPokemon, opposingPokemonIds:opposingPokemonIds});
+}
+
+function renderIndex(myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res){
+	scoreTypeMatchups();
+	// opposingPokemon = findBestPokemon(opposingPokemon, myPokemon);
+	// res.render('index', {myPokemonIds: myPokemonIds, myPokemon: myPokemon, opposingPokemon:opposingPokemon, opposingPokemonIds:opposingPokemonIds});
+}
+
+function scoreTypeMatchups(opposingPokemon, myPokemon){
+	var allTypes = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark", "fairy"]
+	var typeScores = {};
+	//setup multidimensional array for the scores between types
+	for(tmpFromType in allTypes){
+		typeScores[tmpFromType] = {};
+		for(tmpToType in allTypes){
+			typeScores[tmpFromType][tmpToType] = 0;
+		}
+		
+	}
+	session
+	  .run( "MATCH (fromType:Type)-[r]->(toType:Type) RETURN fromType,type(r),toType" )
+	  .subscribe({
+	    onNext: function(record) {
+	    	var pokemonObj = record.get("p")['properties'];
+			
+	    },
+	    onCompleted: function() {
+	      console.log('ready to render ' + req.destination);
+	      
+	    },
+	    onError: function(error) {
+	      console.log(error);
+	      session.close();
+	    }
+	  });
 }
 
 module.exports = router;
