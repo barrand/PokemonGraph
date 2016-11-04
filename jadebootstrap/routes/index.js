@@ -184,38 +184,8 @@ function renderSaved(allPokemon, myPokemonIds, myPokemon, opposingPokemonIds, op
 }
 
 function renderIndex(myPokemonIds, myPokemon, opposingPokemonIds, opposingPokemon, req, res){
-	scoreTypeMatchups();
 	// opposingPokemon = findBestPokemon(opposingPokemon, myPokemon);
-	// res.render('index', {myPokemonIds: myPokemonIds, myPokemon: myPokemon, opposingPokemon:opposingPokemon, opposingPokemonIds:opposingPokemonIds});
-}
-
-function scoreTypeMatchups(opposingPokemon, myPokemon){
-	var allTypes = ["normal", "fighting", "flying", "poison", "ground", "rock", "bug", "ghost", "steel", "fire", "water", "grass", "electric", "psychic", "ice", "dragon", "dark", "fairy"]
-	var typeScores = {};
-	//setup multidimensional array for the scores between types
-	for(tmpFromType in allTypes){
-		typeScores[tmpFromType] = {};
-		for(tmpToType in allTypes){
-			typeScores[tmpFromType][tmpToType] = 0;
-		}
-		
-	}
-	session
-	  .run( "MATCH (fromType:Type)-[r]->(toType:Type) RETURN fromType,type(r),toType" )
-	  .subscribe({
-	    onNext: function(record) {
-	    	var pokemonObj = record.get("p")['properties'];
-			
-	    },
-	    onCompleted: function() {
-	      console.log('ready to render ' + req.destination);
-	      
-	    },
-	    onError: function(error) {
-	      console.log(error);
-	      session.close();
-	    }
-	  });
+	res.render('index', {myPokemonIds: myPokemonIds, myPokemon: myPokemon, opposingPokemon:opposingPokemon, opposingPokemonIds:opposingPokemonIds});
 }
 
 module.exports = router;
