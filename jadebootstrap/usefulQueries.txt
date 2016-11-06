@@ -19,7 +19,22 @@ FOREACH(ignoreMe IN CASE WHEN trim(line.ChargeMove3) <> "" THEN [1] ELSE [] END 
 MERGE (cm3:Move{name: line.ChargeMove3})
 MERGE (p)-[rcm1:has_charge_move{type:"chargeMove3"}]->(cm3))
 
+---------------
 
+	LOAD CSV WITH HEADERS FROM "file:///MoveTypes.csv" AS line 
+	MATCH (move:Move{name: line.Move})
+	MATCH (moveType:Type{name:line.Type})
+	MERGE (move)-[:is_type]->(moveType)
+	return move, moveType
+
+---------------
+
+//get the pokemon that I have
+//get the pokemon I'm opposing
+MATCH (p:Pokemon{name:"Bulbasaur"})-[type1]
+//find 
+
+---------------
 
 CREATE CONSTRAINT ON (p:Pokemon) ASSERT p.pokemon_id IS UNIQUE;
 CREATE CONSTRAINT ON (m:Move) ASSERT m.name IS UNIQUE;
