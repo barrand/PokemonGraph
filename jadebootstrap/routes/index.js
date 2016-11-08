@@ -48,8 +48,7 @@ router.get('/removeOpposing/:id', function(req, res, next) {
 function savePokemon(relationship, pokemon_id, res){
 	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
-	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) CREATE (u)-[:"+relationship+"]->(pi:Pokemon_instance{name:"+p.name+"})";
-	need to figure out how to create an instance of a pokemon that a user can own
+	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:has_pokemon_instance]->(pi) Return user, pi";
 	console.log("queryString: "+queryString);
   	session
 	  .run(queryString)
@@ -121,7 +120,7 @@ function getMyPokemon(session, req, res, allPokemon){
 	var myPokemon = [];
 	var opposingPokemon = [];
 	session
-	  .run( "MATCH (u:User {user_id:"+userId+"}) MATCH (p:Pokemon)<-[:has_pokemon]-(u) RETURN p" )
+	  .run( "MATCH (u:User {user_id:"+userId+"}) MATCH (p:Pokemon)<-[:has_pokemon_instance]-(u) RETURN p" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	var pokemonObj = record.get("p")['properties'];
