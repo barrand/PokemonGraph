@@ -29,11 +29,11 @@ router.get('/saved/', function(req, res, next) {
 
 router.get('/saveMine/:id', function(req, res, next) {
   	var id = req.params.id;
-  	savePokemon("has_pokemon", id, res);
+  	savePokemon("has_pokemon_instance", id, res);
 });
 router.get('/saveOpposing/:id', function(req, res, next) {
   	var id = req.params.id;
-  	savePokemon("opposing_pokemon", id, res);
+  	savePokemon("opposing_pokemon_instance", id, res);
 });
 
 router.get('/removeMine/:id', function(req, res, next) {
@@ -48,7 +48,7 @@ router.get('/removeOpposing/:id', function(req, res, next) {
 function savePokemon(relationship, pokemon_id, res){
 	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
-	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:has_pokemon_instance]->(pi) Return user, pi";
+	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:"+relationship+"]->(pi) Return user, pi";
 	console.log("queryString: "+queryString);
   	session
 	  .run(queryString)
@@ -73,7 +73,7 @@ function removePokemon(relationship, pokemon_id, res){
 	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
   	session
-	  .run( "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH (u:User {user_id:"+userId+"})-[r:"+relationship+"]->(p) DELETE r" )
+	  .run( "MATCH(p:Pokemon_instance{pokemon_id:"+pokemon_id+"}) MATCH (u:User {user_id:"+userId+"})-[r:"+relationship+"]->(p) DELETE r" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	
@@ -97,6 +97,7 @@ function getAllPokemon(session, req, res){
 	allPokemon['occasional'] = [];
 	allPokemon['common'] = [];
 	allPokemon['everywhere'] = [];
+	console.log("GET all pokemon ");
 	session
 	  .run( "MATCH (p:Pokemon)-[:how_battle_common]->(c) RETURN p,c" )
 	  .subscribe({
@@ -104,6 +105,7 @@ function getAllPokemon(session, req, res){
 	    	var pokemonObj = record.get("p")['properties'];
 			var howCommon =  record.get("c")['properties']['name'];
 			allPokemon[howCommon].push(pokemonObj);
+			console.log("all pokemon " + pokemonObj.name);
 	    },
 	    onCompleted: function() {
 	      getMyPokemon(session, req, res, allPokemon);
@@ -119,12 +121,16 @@ function getMyPokemon(session, req, res, allPokemon){
 	var myPokemonIds = [];
 	var myPokemon = [];
 	var opposingPokemon = [];
+	console.log("getting my pokemon " + userId);
+	var queryString = "MATCH (u:User {user_id:"+userId+"}) MATCH (u)-[:has_pokemon_instance]->(p:Pokemon_instance) RETURN p, u" 
+	console.log("queryString " + queryString);
 	session
-	  .run( "MATCH (u:User {user_id:"+userId+"}) MATCH (p:Pokemon)<-[:has_pokemon_instance]-(u) RETURN p" )
+	  .run(queryString)
 	  .subscribe({
 	    onNext: function(record) {
 	    	var pokemonObj = record.get("p")['properties'];
 			myPokemonIds.push(Number(pokemonObj.pokemon_id));
+			console.log("got my pokemons " +  pokemonObj.pokemon_id);
 			myPokemon.push(pokemonObj);
 	    },
 	    onCompleted: function() {
@@ -141,7 +147,7 @@ function getOpposingPokemon(session, req, res, allPokemon, myPokemonIds, myPokem
 	var opposingPokemonIds = [];
 	var opposingPokemon = [];
 	session
-	  .run( "MATCH (u:User {user_id:"+userId+"}) MATCH (p:Pokemon)<-[:opposing_pokemon]-(u) RETURN p" )
+	  .run( "MATCH (u:User {user_id:"+userId+"}) MATCH (p:Pokemon_instance)<-[:opposing_pokemon_instance]-(u) RETURN p" )
 	  .subscribe({
 	    onNext: function(record) {
 	    	var pokemonObj = record.get("p")['properties'];
