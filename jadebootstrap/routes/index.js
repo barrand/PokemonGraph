@@ -48,7 +48,7 @@ router.get('/removeOpposing/:id', function(req, res, next) {
 function savePokemon(relationship, pokemon_id, res){
 	var driver = neo4j.driver("bolt://localhost:7687", neo4j.auth.basic("neo4j", "password"));
 	var session = driver.session();
-	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:"+relationship+"]->(pi) Return user, pi";
+	var queryString = "MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:"+relationship+"]->(pi)-[:instance_of]->(map) Return user, pi";
 	console.log("queryString: "+queryString);
   	session
 	  .run(queryString)

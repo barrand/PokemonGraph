@@ -28,6 +28,36 @@ MERGE (p)-[rcm1:has_charge_move{type:"chargeMove3"}]->(cm3))
 	return move, moveType
 
 ---------------
+//save the first fast moves for all pokemon instances
+MATCH(u:User{user_id:1})-[:has_pokemon_instance]->(pi:Pokemon_instance)-[:instance_of]->(p:Pokemon)
+MATCH (p)-[:has_fast_move]->(fm:Move)
+WITH u, pi, p, fm LIMIT 1
+CREATE (pi)-[:has_fast_move]->(fm)
+Return pi, fm
+
+---------------
+
+MATCH(op:Pokemon_instance{name:"Lapras"}) 
+MATCH(op_prototype:Pokemon)<-[:instance_of]-(op)
+RETURN op, op_prototype
+---------------
+#save pokemon instance
+MATCH(p:Pokemon{pokemon_id:4}) 
+MATCH(u:User{user_id:1})
+WITH p as map, u as user
+CREATE (pi:Pokemon_instance)
+SET pi=map
+CREATE (user)-[:has_pokemon_instance]->(pi)-[:instance_of]->(map)
+Return user, pi
+
+MATCH(p:Pokemon{pokemon_id:"+pokemon_id+"}) MATCH(u:User{user_id:"+userId+"}) WITH p as map, u as user CREATE (pi:Pokemon_instance) SET pi=map CREATE (user)-[:"+relationship+"]->(pi)-[:instance_of]->(map) Return user, pi
+
+------
+#Get pokemon from user
+MATCH (u:User {user_id:1}) 
+MATCH (p:Pokemon)<-[:has_pokemon_instance]-(u) 
+RETURN p, u
+------
 
 //get the pokemon that I have
 //get the pokemon I'm opposing
