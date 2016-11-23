@@ -31,9 +31,12 @@ MERGE (p)-[rcm1:has_charge_move{type:"chargeMove3"}]->(cm3))
 //save the first fast moves for all pokemon instances
 MATCH(u:User{user_id:1})-[:has_pokemon_instance]->(pi:Pokemon_instance)-[:instance_of]->(p:Pokemon)
 MATCH (p)-[:has_fast_move]->(fm:Move)
-WITH u, pi, p, fm LIMIT 1
-CREATE (pi)-[:has_fast_move]->(fm)
-Return pi, fm
+MATCH (p)-[:has_charge_move]->(cm:Move)
+WITH COLLECT(fm)[0] AS fastMoves, cm, u, pi
+WITH COLLECT(cm)[0] AS chargeMoves, fastMoves, u, pi
+MERGE (pi)-[:has_fast_move]->(fastMoves)
+MERGE (pi)-[:has_charge_move]->(chargeMoves)
+Return u, pi, fastMoves, chargeMoves
 
 ---------------
 
