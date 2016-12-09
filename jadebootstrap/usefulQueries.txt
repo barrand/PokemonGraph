@@ -26,6 +26,17 @@ MERGE (p)-[rcm1:has_charge_move{type:"chargeMove3"}]->(cm3))
 	MATCH (moveType:Type{name:line.Type})
 	MERGE (move)-[:is_type]->(moveType)
 	return move, moveType
+	sd
+
+----------
+#Making the magic, and finding best to oppose:
+MATCH(u:User{user_id:1})-[:opposing_pokemon_instance]->(opi:Pokemon_instance)-[:instance_of]->(op:Pokemon)
+MATCH(op)-[]-(opTypes:Type)
+MATCH(u)-[:has_pokemon_instance]->(pi:Pokemon_instance)-[:instance_of]->(p:Pokemon)
+MATCH(p)-[]-(pTypes:Type)
+MATCH (opTypes)<-[attack]-(pTypes)
+RETURN p, op, pTypes, opTypes, attack 
+ORDER BY attack.damage DESC
 
 ---------------
 //save the first fast moves for all pokemon instances
